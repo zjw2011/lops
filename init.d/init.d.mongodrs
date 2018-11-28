@@ -1,0 +1,109 @@
+#! /bin/sh
+# chkconfig: 2345 55 25
+# Description: Startup script for mongodrs webserver on Debian. Place in /etc/init.d and
+# run 'update-rc.d -f mongodrs defaults', or use the appropriate command on your
+# distro. For CentOS/Redhat run: 'chkconfig --add mongodrs'
+
+### BEGIN INIT INFO
+# Provides:          mongodrs
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the mongodrs web server
+# Description:       starts mongodrs using start-stop-daemon
+### END INIT INFO
+
+# Author:   jiawei zhang
+# mongo> config={_id:"{{REPLICASETNAME}}",members:[{_id:0,host:"IP1:PORT1"},{_id:1,host:"IP2:PORT2"},{_id:2,host:"IP3:PORT3"}]}
+# mongo> rs.initiate(config)
+# mongo> rs.add('mainos:27005')
+# mongo> rs.status()
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=mongodrs
+MONGOD_BIN=/usr/bin/mongod
+REPLICASETNAME='{{REPLICASETNAME}}'
+CONFIGFILE='{{CONFIGFILE}}'
+DATADIRS='{{DATADIRS}}'
+PIDFILE='{{PIDFILE}}'
+PORTS='{{PORTS}}'
+if [ -s /bin/ss ]; then
+  StatBin=/bin/ss
+else
+  StatBin=/bin/netstat
+fi
+
+case "$1" in
+  start)
+      echo -n "Starting $NAME... "
+
+      if $StatBin -tnpl | grep -q mongod;then
+        echo "$NAME (pid `pidof $NAME`) already running."
+        exit 1
+      fi
+
+      for dir in $DATADIRS ; do
+        if [ ! -d $dir ]; then
+          mkdir -p $dir
+        fi
+      done
+
+      for conf in $CONFIGFILE ; do
+        $MONGOD_BIN -f $conf
+        if [ "$?" != 0 ] ; then
+          echo " failed"
+          exit 1
+        else
+          echo " done"
+        fi
+      done
+      $0 openfireall
+      ;;
+  openfireall)
+      for i in $PORTS ; do
+        firewall-cmd --permanent --zone=public --add-port=$i/tcp
+      done
+      firewall-cmd --reload
+      ;;
+  closefireall)
+      for i in $PORTS ; do
+        firewall-cmd --permanent --zone=public --remove-port=$i/tcp
+      done
+      firewall-cmd --reload
+      ;;
+  stop)
+    echo -n "Stoping $NAME... "
+
+    if ! $StatBin -tnpl | grep -q mongod; then
+      echo "$NAME is not running."
+      exit 1
+    fi
+
+    for dir in $DATADIRS ; do
+      if [ -d $dir ]; then
+          $MONGOD_BIN --shutdown --dbpath $dir
+      fi
+    done
+    $0 closefireall
+    ;;
+  status)
+    if $StatBin -tnpl | grep -q mongod; then
+      PID=`pidof mongod`
+      echo "$NAME (pid $PID) is running..."
+    else
+      echo "$NAME is stopped."
+      exit 0
+    fi
+    ;;
+  restart)
+    $0 stop
+    sleep 1
+    $0 start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|openfireall|closefireall}"
+    exit 1
+    ;;
+
+esac
