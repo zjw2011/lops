@@ -1,0 +1,130 @@
+#! /bin/sh
+# chkconfig: 2345 55 25
+# Description: Startup script for mongodsh webserver on Debian. Place in /etc/init.d and
+# run 'update-rc.d -f mongodsh defaults', or use the appropriate command on your
+# distro. For CentOS/Redhat run: 'chkconfig --add mongodsh'
+
+### BEGIN INIT INFO
+# Provides:          mongodsh
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: starts the mongodsh web server
+# Description:       starts mongodsh using start-stop-daemon
+### END INIT INFO
+
+# Author:   jiawei zhang
+# 至少需要3台服务器 并且configSrv分开部署
+# rs.initiate(
+#  {
+#    _id : {{REPLICASETNAME}},
+#    members: [
+#      { _id : 0, host : "s1-mongo1.example.net:27018" },
+#      { _id : 1, host : "s1-mongo2.example.net:27018" },
+#      { _id : 2, host : "s1-mongo3.example.net:27018" }
+#     ]
+#   }
+# )
+# mongo> rs.status()
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=mongodsh
+MONGOD_BIN=/usr/bin/mongod
+MONGOS_BIN=/usr/bin/mongos
+REPLICASETNAME='{{REPLICASETNAME}}'
+CONFIG_CONFIGFILE='{{CONFIG_CONFIGFILE}}'
+CONFIG_DATADIR='{{CONFIG_DATADIR}}'
+CONFIG_PIDFILE='{{CONFIG_PIDFILE}}'
+CONFIG_PORT='{{CONFIG_PORT}}'
+SHARD_CONFIGFILE='{{SHARD_CONFIGFILE}}'
+SHARD_PIDFILE='{{SHARD_PIDFILE}}'
+SHARD_PORT='{{SHARD_PORT}}'
+if [ -s /bin/ss ]; then
+  StatBin=/bin/ss
+else
+  StatBin=/bin/netstat
+fi
+
+case "$1" in
+  startconfig)
+    echo 'Notice: Please make sure replica set initiate!!(rs.initiate)'
+    if [ ! -d $CONFIG_DATADIR ]; then
+      mkdir -p $CONFIG_DATADIR
+    fi
+    $MONGOD_BIN --config $CONFIG_CONFIGFILE
+    if [ "$?" != 0 ] ; then
+      echo " failed"
+      exit 1
+    else
+      echo " done"
+    fi
+    ;;
+  startshard)
+    if $StatBin -tnpl | grep -q mongos;then
+      echo "$NAME (pid `pidof $NAME`) mongos already running."
+      exit 1
+    fi
+    
+    $MONGOS_BIN --config $SHARD_CONFIGFILE
+    if [ "$?" != 0 ] ; then
+      echo " failed"
+      exit 1
+    else
+      echo " done"
+    fi
+    ;;
+  stopshard)
+    if ! $StatBin -tnpl | grep -q mongos; then
+      echo "$NAME is not running."
+      exit 1
+    fi
+    kill `pidof mongos`
+    if [ "$?" != 0 ] ; then
+      echo " failed"
+      exit 1
+    else
+      echo " done"
+    fi
+    ;;
+  start)
+    echo -n "Starting $NAME... "
+
+    $0 startconfig
+    sleep 3
+    $0 startshard
+    $0 openfireall
+    ;;
+  stop)
+    echo -n "Stoping $NAME... "
+
+    $0 stopshard
+    sleep 3
+    $MONGOD_BIN --shutdown --dbpath $CONFIG_DATADIR
+    $0 closefireall
+    ;;
+  status)
+    if $StatBin -tnpl | grep -q mongos; then
+      PID=`pidof mongos`
+      echo "$NAME (pid $PID) is running..."
+    else
+      echo "$NAME is stopped."
+      exit 0
+    fi
+    ;;
+  openfireall)
+    firewall-cmd --permanent --zone=public --add-port=${CONFIG_PORT}/tcp
+    firewall-cmd --permanent --zone=public --add-port=${SHARD_PORT}/tcp
+    firewall-cmd --reload
+    ;;
+  closefireall)
+    firewall-cmd --permanent --zone=public --remove-port=${CONFIG_PORT}/tcp
+    firewall-cmd --permanent --zone=public --remove-port=${SHARD_PORT}/tcp
+    firewall-cmd --reload
+    ;;
+  *)
+    echo "Usage: $0 {startconfig|startshard|stop|openfireall|closefireall}"
+    exit 1
+    ;;
+
+esac
