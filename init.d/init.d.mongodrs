@@ -15,6 +15,7 @@
 ### END INIT INFO
 
 # Author:   jiawei zhang
+<<<<<<< HEAD
 # rs.initiate(
 #  {
 #    _id : {{REPLICASETNAME}},
@@ -25,6 +26,11 @@
 #     ]
 #   }
 # )
+=======
+# mongo> config={_id:"{{REPLICASETNAME}}",members:[{_id:0,host:"IP1:PORT1"},{_id:1,host:"IP2:PORT2"},{_id:2,host:"IP3:PORT3"}]}
+# mongo> rs.initiate(config)
+# mongo> rs.add('mainos:27005')
+>>>>>>> 8a1ac1f5deb8d42b6b6220376f55683d6fc658b0
 # mongo> rs.status()
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
@@ -57,7 +63,11 @@ case "$1" in
       done
 
       for conf in $CONFIGFILE ; do
+<<<<<<< HEAD
         $MONGOD_BIN --config $conf
+=======
+        $MONGOD_BIN -f $conf
+>>>>>>> 8a1ac1f5deb8d42b6b6220376f55683d6fc658b0
         if [ "$?" != 0 ] ; then
           echo " failed"
           exit 1

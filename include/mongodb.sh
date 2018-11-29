@@ -83,7 +83,6 @@ Install_Mongodb()
 
 	\cp init.d/init.d.disable-transparent-hugepages /etc/init.d/disable-transparent-hugepages
     chmod +x /etc/init.d/disable-transparent-hugepages
-
     \cp conf/mongodrs-install.sh /usr/bin/mongodrs-install.sh
     chmod +x /usr/bin/mongodrs-install.sh
 

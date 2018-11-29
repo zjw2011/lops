@@ -3,8 +3,6 @@
 # 实现复制集
 # Usage mongodrs-install.sh install/remove [#name] [--p p1 p2 p3]
 
-
-
 RS_Install()
 {
 	Port="0"
