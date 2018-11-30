@@ -66,8 +66,7 @@ case "$action" in
     echo "You will uninstall Mongodb"
     Get_Mongodb_Dele_Files
     Echo_Red "The following directory or files will be remove!"
-    for ItFile in ${Mongodb_Dele_Files}
-    do 
+    for ItFile in ${Mongodb_Dele_Files} ; do 
         Echo_Yellow "${ItFile}"
     done
     Sleep_Sec 3

@@ -48,7 +48,7 @@ Mongodb_Stack()
     StartUp disable-transparent-hugepages
     /etc/init.d/disable-transparent-hugepages start
 
-    systemctl enable mongod
+    # systemctl enable mongod
     systemctl start mongod
     Add_Mongodb_Iptables_Rules
     Log_Install_Software 'Mongodb'
@@ -138,7 +138,7 @@ Check_Mongodb_Files()
 Uninstall_Mongodb()
 {
 	echo "Stoping Mongod..."
-	systemctl disable mongod
+	# systemctl disable mongod
     systemctl stop mongod
     Remove_StartUp disable-transparent-hugepages
     yum erase -y $(rpm -qa | grep mongodb-org)

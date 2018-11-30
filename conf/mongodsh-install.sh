@@ -3,7 +3,7 @@
 # 1 创建configSrv(27016) 2 创建分片(27018) 3 创建mongos(27017)
 # https://docs.mongodb.com/manual/tutorial/deploy-shard-cluster/
 # 需要configSrv的IP地址
-# Usage mongodrs-install.sh install/remove [#name] [--shard -p p1 p2 p3 --config -p 123456 -h 10.211.55.100 10.211.55.101 --mongos -p 12346 ] 
+# Usage mongodrs-install.sh install/remove [#name] [--config -p 123456 -h 10.211.55.100 10.211.55.101 --mongos -p 12346 ] 
 
 Install_Mongodsh()
 {
@@ -30,13 +30,9 @@ Install_Mongos()
 	Mongos_Result=$Result_List
 	Get_Arg "$Mongos_Result" "-p"
 	Mongos_Port=$Result_List
-	Config_Host_Ports=""
+	Config_Host_And_Ports=""
 	for host in ${Config_Hosts} ; do
-		if [ -z "${Config_Host_Ports}" ]; then
-			Config_Host_Ports="${host}:${Config_Port}"
-		else
-			Config_Host_Ports="${Config_Host_Ports} ${host}:${Config_Port}"
-		fi
+		Config_Host_And_Ports="${Config_Host_And_Ports} ${host}:${Config_Port}"
 	done
 
     \cp /etc/mongos.conf /etc/mongos-${Mongos_Port}.conf
@@ -46,7 +42,7 @@ Install_Mongos()
 	sed -i "s/port: 27017/port: ${Mongos_Port}/g" /etc/mongos-${Mongos_Port}.conf
 	cat >> /etc/mongos-${Mongos_Port}.conf<<EOF
 sharding:
-  configDB: ${Shard_Name}-config/${Config_Host_Ports}
+  configDB: ${Shard_Name}-config/${Config_Host_And_Ports:1}
 EOF
 	
 	Shard_ConfFile="/etc/mongos-${Mongos_Port}.conf"
@@ -87,46 +83,26 @@ EOF
 	Config_PidFile="/var/run/mongodb/mongod-config-${Config_Port}.pid"
 }
 
-Install_ShardSrv()
-{
-	Get_Arg "$SH_Args" "--shard"
-	Shard_Result=$Result_List
-	Get_Arg "$Shard_Result" "-p"
-	Shard_Ports=$Result_List
-
-	if [[ -z $Shard_Ports ]]; then
-        echo "Please input [ --shard -p Port1 Port2  ]"
-        exit 1
-    fi
-
-	mongodrs-install.sh shinstall "${Shard_Name}-shard" "--p" $Shard_Ports
-}
-
 Get_Arg()
 {
 	local Param_List=$1
 	local Start_Name=$2
-	Arg_Start="0"
-	Result_List=""
-	if echo "${Start_Name}" | grep -q "^--"; then
-		End_Name="--"
-	else
-		End_Name="-"
-	fi
+	local End_Name="-"
+	local Result_List_temp=""
+	local Arg_Start="0"
+	
+	[[ echo "${Start_Name}" | grep -q "^--" ]] && End_Name="--"
 	for arg in ${Param_List} ; do
 		if [ "${Arg_Start}" = "1" ]; then
 			if echo "${arg}" | grep -q "^${End_Name}"; then
 				Arg_Start="0"
-			elif [ -z "${Result_List}" ]; then
-				Result_List=$arg
 			else
-				Result_List="${Result_List} ${arg}"
+				Result_List_temp="${Result_List_temp} ${arg}"
 			fi
 		fi
-		if [ "${arg}" = "${Start_Name}" ]; then
-			Arg_Start="1"
-		fi
+		[[ "${arg}" = "${Start_Name}" ]] && Arg_Start="1"
 	done
+	Result_List=${Result_List_temp:1}
 }
 
 SH_Args=$@
@@ -137,7 +113,6 @@ case "$1" in
 		Shard_Name=$2
         echo "Install ${Shard_Name}... "
         Install_ConfigSrv
-        Install_ShardSrv
         Install_Mongos
         Install_Mongodsh
         ;;

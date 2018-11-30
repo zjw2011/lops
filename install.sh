@@ -77,6 +77,7 @@ Init_Install()
     elif [ "$PM" = "apt" ]; then
         Deb_Lib_Opt
     fi
+    Install_Python_Pip
 }
 
 case "${Stack}" in

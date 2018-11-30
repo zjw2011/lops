@@ -350,6 +350,19 @@ Install_Nghttp2()
     fi
 }
 
+Install_Python_Pip()
+{
+    if [[ "${DISTRO}" = "CentOS" || "${DISTRO}" = "RHEL" || "${DISTRO}" = "Aliyun" || "${DISTRO}" = "Amazon" ]]; then
+        yum install -y epel-release
+    fi
+    if [ "$PM" = "yum" ]; then
+        yum install -y python-pip
+    elif [ "$PM" = "apt" ]; then
+        apt-get update
+        apt-get install -y python-pip
+    fi
+}
+
 Check_Download()
 {
     Echo_Blue "[+] Downloading files..."

@@ -1,8 +1,0 @@
-rs.initiate(
-  {
-    _id : "shardtest-config",
-    members: [
-      { _id : 0, host : "10.211.55.100:27016" },
-    ]
-  }
-)
