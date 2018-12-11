@@ -261,7 +261,6 @@ Check_Mirror()
 
 Log_Install_Software()
 {
-	local Software_Name=$1
     if [[ -s /usr/lops.install.log ]] && grep -Eqi "^${Software_Name}=" /usr/lops.install.log; then
 	   sed -i "s/^${Software_Name}=.*/${Software_Name}=yes/g" /usr/lops.install.log
     else
@@ -279,7 +278,6 @@ Check_Install_Software()
 
 Dele_Install_Software()
 {
-	local Software_Name=$1
 	if [ -s /usr/lops.install.log ]; then
 		sed -i "s/^${Software_Name}=.*/${Software_Name}=no/g" /usr/lops.install.log
 	fi

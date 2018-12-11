@@ -138,6 +138,7 @@ Check_Mongodb_Files()
 
 Uninstall_Mongodb()
 {
+    Software_Name='Mongodb'
 	echo "Stoping Mongod..."
 	# systemctl disable mongod
     systemctl stop mongod
@@ -154,7 +155,7 @@ Uninstall_Mongodb()
     do 
         rm -rf ${ItFile}
     done
-    Dele_Install_Software 'Mongodb'
+    Dele_Install_Software
 }
 
 Get_Mongodb_Dele_Files()

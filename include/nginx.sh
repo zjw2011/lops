@@ -250,6 +250,7 @@ Clean_Nginx_Install()
 
 Uninstall_Nginx()
 {
+    Software_Name='Nginx'
     echo "Stoping Nginx..."
     /etc/init.d/nginx stop
     Remove_StartUp nginx
@@ -264,7 +265,7 @@ Uninstall_Nginx()
     do 
         RM_Safe ${ItFile}
     done
-    Dele_Install_Software 'Nginx'
+    Dele_Install_Software
 }
 
 Dele_Nginx_Iptables_Rules()

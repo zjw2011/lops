@@ -45,6 +45,10 @@ JDK_Stack()
 	Software_Name='JDK'
 	Check_JDK
 	if [ "${JDK_Installed}" = "0" ]; then
+		Press_Install
+		Get_Dist_Version
+    	Print_Sys_Info
+
 		cd ${cur_dir}/src
 		Get_TarName
 		Install_JDK
@@ -108,11 +112,13 @@ EOF
 
 Uninstall_JDK()
 {
+	Software_Name='JDK'
 	Check_JDK
 	if [ "${JDK_Installed}" = "1" ]; then
 		RM_Safe /etc/profile.d/java.sh
 		RM_Safe ${App_Home}/java
 		source /etc/profile
+		Dele_Install_Software
 	fi
 }
 
