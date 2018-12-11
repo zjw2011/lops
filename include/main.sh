@@ -261,26 +261,44 @@ Check_Mirror()
 
 Log_Install_Software()
 {
-    if [[ -s /usr/lops.install.log ]] && grep -Eqi "^${Software_Name}=" /usr/lops.install.log; then
-	   sed -i "s/^${Software_Name}=.*/${Software_Name}=yes/g" /usr/lops.install.log
-    else
-       echo "${Software_Name}=yes" >> /usr/lops.install.log
+    local passed="1"
+    if [ "${Software_Name}" = "" ]; then
+        passed="0"
+    fi
+    if [ "${passed}" = "1" ]; then
+        if [[ -s /usr/lops.install.log ]] && grep -Eqi "^${Software_Name}=" /usr/lops.install.log; then
+	       sed -i "s/^${Software_Name}=.*/${Software_Name}=yes/g" /usr/lops.install.log
+        else
+            echo "${Software_Name}=yes" >> /usr/lops.install.log
+        fi
     fi
 }
 
 Check_Install_Software()
 {
+    local passed="1"
+    if [ "${Software_Name}" = "" ]; then
+        passed="0"
+    fi
 	Software_Installed='0'
-	if [[ -s /usr/lops.install.log ]] && grep -Eqi "^${Software_Name}=yes" /usr/lops.install.log; then
-        Software_Installed='1'
+    if [ "${passed}" = "1" ]; then
+	   if [[ -s /usr/lops.install.log ]] && grep -Eqi "^${Software_Name}=yes" /usr/lops.install.log; then
+            Software_Installed='1'
+        fi
     fi
 }
 
 Dele_Install_Software()
 {
-	if [ -s /usr/lops.install.log ]; then
-		sed -i "s/^${Software_Name}=.*/${Software_Name}=no/g" /usr/lops.install.log
-	fi
+    local passed="1"
+    if [ "${Software_Name}" = "" ]; then
+        passed="0"
+    fi
+    if [ "${passed}" = "1" ]; then
+	   if [ -s /usr/lops.install.log ]; then
+		  sed -i "s/^${Software_Name}=.*/${Software_Name}=no/g" /usr/lops.install.log
+	   fi
+    fi
 }
 
 Color_Text()
