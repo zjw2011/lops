@@ -271,7 +271,6 @@ Log_Install_Software()
 
 Check_Install_Software()
 {
-	local Software_Name=$1
 	Software_Installed='0'
 	if [[ -s /usr/lops.install.log ]] && grep -Eqi "^${Software_Name}=yes" /usr/lops.install.log; then
         Software_Installed='1'

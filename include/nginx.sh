@@ -2,8 +2,9 @@
 
 Nginx_Stack()
 {
-	Check_Install_Software 'Nginx'
-	if [ "${Software_Installed}" = '1' ]; then
+    Software_Name='Nginx'
+	Check_Install_Software
+	if [ "${Software_Installed}" = "1" ]; then
 		Echo_Red "Error: Nginx installed."
 		exit 1
 	fi
@@ -24,7 +25,7 @@ Nginx_Stack()
     \cp ${cur_dir}/conf/index.html ${Default_Website_Dir}/index.html
     Check_Nginx_Files
     Clean_Nginx_Install
-    Log_Install_Software 'Nginx'
+    Log_Install_Software
 }
 
 Nginx_Dependent()

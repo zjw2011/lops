@@ -16,6 +16,7 @@ Stack=$1
 . include/safe.sh
 . include/main.sh
 . include/init.sh
+. include/jdk.sh
 . include/nginx.sh
 . include/mongodb.sh
 . include/end.sh
@@ -93,7 +94,8 @@ case "${Stack}" in
         Mongodb_Stack 2>&1 | tee /root/mongodb-install.log
         ;;
     jdk)
-		JDK_Stack
+        JDK_Selection
+		JDK_Stack 2>&1 | tee /root/jdk-install.log
         ;;
     openresty)
 		Openresty_Stack

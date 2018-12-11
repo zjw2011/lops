@@ -29,8 +29,7 @@ RM_Safe() {
 		exit 1
 	fi
 	local FoundFile='0'
-	for ItFile in ${Safe_Remove_Files}
-	do 
+	for ItFile in ${Safe_Remove_Files} ; do 
 		if [ "${FileName}" = "${ItFile}" ]; then
 			FoundFile='1'
 			break
@@ -48,8 +47,7 @@ Check_Remove_Files() {
 	Get_Safe_Remove_Files
 
 	Echo_Yellow "Enable safe remove files ${Safe_Remove_Files}"
-	for ItFile in ${Safe_Remove_Files}
-	do 
+	for ItFile in ${Safe_Remove_Files} ; do 
 		if [ "${FileName}" = "/" ]; then
 			Echo_Red "Can't remove /!"
 			exit 1

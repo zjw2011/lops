@@ -2,7 +2,7 @@
 
 LOps_Ver='0.0.1'
 
-JDK_Ver='jdk1.8.0_191'
+JDK8_Ver='jdk1.8.0_191'
 Pcre_Ver='pcre-8.39'
 Jemalloc_Ver='jemalloc-5.0.1'
 TCMalloc_Ver='gperftools-2.7'

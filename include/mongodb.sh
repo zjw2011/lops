@@ -35,8 +35,9 @@ Mongodb_Selection()
 
 Mongodb_Stack()
 {
-	Check_Install_Software "Mongodb"
-	if [ "${Software_Installed}" = '1' ]; then
+    Software_Name='Mongodb'
+	Check_Install_Software
+	if [ "${Software_Installed}" = "1" ]; then
 		Echo_Red "Error: Mongodb installed."
 		exit 1
 	fi
@@ -51,7 +52,7 @@ Mongodb_Stack()
     # systemctl enable mongod
     systemctl start mongod
     Add_Mongodb_Iptables_Rules
-    Log_Install_Software 'Mongodb'
+    Log_Install_Software
     Check_Mongodb_Files
     if [ "${isMongodb}" = "ok" ]; then
     	Print_Sucess_Info
