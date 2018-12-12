@@ -82,19 +82,35 @@ Check_JDK_Files()
 
 Install_JDK()
 {
-    Echo_Blue "[+] Installing ${JDK_Ver} in ${App_Home}/java... "
+    #清理原来的旧的文件
+    JAVA_HOME=${App_Home}/java
+    rm -rf ${JAVA_HOME}
+    mkdir -p ${JAVA_HOME}
+
+    Echo_Blue "[+] Installing ${JDK_Ver} in ${JAVA_HOME}... "
 
     if [ "${Is_64bit}" = "y" ]; then
         Tar_Cd ${JDK_Tar_Name}-x64.tar.gz ${JDK_Ver}
     else
     	Tar_Cd ${JDK_Tar_Name}-i586.tar.gz ${JDK_Ver}
     fi
-
     cd ${cur_dir}/src
-    JAVA_HOME=${App_Home}/java
-    RM_Safe ${JAVA_HOME}
-    mkdir -p ${JAVA_HOME}
-    \cp -rf ${JDK_Ver}/* ${JAVA_HOME}
+    
+    \cp -rf ${JDK_Ver}/bin ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/include ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/javafx-src.zip ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/jre ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/lib ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/man ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/release ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/README.html ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/src.zip ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/THIRDPARTYLICENSEREADME-JAVAFX.txt ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/THIRDPARTYLICENSEREADME.txt ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/COPYRIGHT ${JAVA_HOME}
+    \cp -rf ${JDK_Ver}/LICENSE ${JAVA_HOME}
+    
+    rm -rf ${JDK_Ver}
 
     if [ "${Enable_JDK_Policy}" = 'y' ]; then
     	echo "Installing Policy for JDK..."
@@ -110,14 +126,31 @@ EOF
 	source /etc/profile
 }
 
+Get_JDK_Dele_Files()
+{
+    if [ -z "${JDK_Dele_Files}" ]; then 
+        JDK_Dele_Files="\
+/etc/profile.d/java.sh \
+${App_Home}/java"
+    fi
+}
+
+Dele_JDK_Files()
+{
+    echo "Deleting JDK files..."
+    Get_JDK_Dele_Files
+    for ItFile in ${JDK_Dele_Files} ; do 
+        rm -rf ${ItFile}
+    done
+    source /etc/profile
+}
+
 Uninstall_JDK()
 {
 	Software_Name='JDK'
 	Check_JDK
 	if [ "${JDK_Installed}" = "1" ]; then
-		RM_Safe /etc/profile.d/java.sh
-		RM_Safe ${App_Home}/java
-		source /etc/profile
+        Dele_JDK_Files
 		Dele_Install_Software
 	fi
 }

@@ -151,8 +151,7 @@ Uninstall_Mongodb()
     # 删除文件
     echo "Deleting Mongodb files..."
     Get_Mongodb_Dele_Files
-    for ItFile in ${Mongodb_Dele_Files}
-    do 
+    for ItFile in ${Mongodb_Dele_Files} ; do 
         rm -rf ${ItFile}
     done
     Dele_Install_Software

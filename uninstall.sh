@@ -47,15 +47,15 @@ Sleep_Sec()
 action=""
 echo "Enter 1 to uninstall nginx"
 echo "Enter 2 to uninstall mongodb"
-read -p "(Please input 1, 2): " action
+echo "Enter 3 to uninstall jdk"
+read -p "(Please input 1, 2, 3): " action
 
 case "$action" in
 1|nginx)
     echo "You will uninstall Nginx"
     Get_Nginx_Dele_Files
     Echo_Red "The following directory or files will be remove!"
-    for ItFile in ${Nginx_Dele_Files}
-    do 
+    for ItFile in ${Nginx_Dele_Files} ; do 
         Echo_Yellow "${ItFile}"
     done
     Sleep_Sec 3
@@ -72,5 +72,16 @@ case "$action" in
     Sleep_Sec 3
     Press_Start
     Uninstall_Mongodb
+    ;;
+3|jdk)
+    echo "You will uninstall JDK"
+    Get_JDK_Dele_Files
+    Echo_Red "The following directory or files will be remove!"
+    for ItFile in ${JDK_Dele_Files} ; do 
+        Echo_Yellow "${ItFile}"
+    done
+    Sleep_Sec 3
+    Press_Start
+    Uninstall_JDK
     ;;
 esac
