@@ -10,13 +10,15 @@ ${cur_dir}/src/${Openssl_Ver} \
 ${cur_dir}/src/${Luajit_Ver} \
 ${App_Home}/nginx/conf/nginx.conf \
 ${App_Home}/nginx \
-/etc/init.d/nginx
+/etc/init.d/nginx \
 /etc/ld.so.conf.d/luajit.conf \
 /etc/profile.d/luajit.sh \
 /lib64/libluajit-5.1.so.2 \
 /usr/lib/libluajit-5.1.so.2 \
 ${App_Home}/openresty/nginx/conf/nginx.conf \
-${App_Home}/openresty
+${App_Home}/openresty \
+${App_Home}/redis \
+/etc/init.d/redis\
 "
 }
 

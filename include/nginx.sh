@@ -261,8 +261,7 @@ Uninstall_Nginx()
     # 删除文件
     echo "Deleting Nginx files..."
     Get_Nginx_Dele_Files
-    for ItFile in ${Nginx_Dele_Files}
-    do 
+    for ItFile in ${Nginx_Dele_Files} ; do 
         RM_Safe ${ItFile}
     done
     Dele_Install_Software

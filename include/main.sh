@@ -152,6 +152,40 @@ Get_Dist_Name()
     Get_OS_Bit
 }
 
+Get_RHEL_Version()
+{
+    Get_Dist_Name
+    if [ "${DISTRO}" = "RHEL" ]; then
+        if grep -Eqi "release 5." /etc/redhat-release; then
+            echo "Current Version: RHEL Ver 5"
+            RHEL_Ver='5'
+        elif grep -Eqi "release 6." /etc/redhat-release; then
+            echo "Current Version: RHEL Ver 6"
+            RHEL_Ver='6'
+        elif grep -Eqi "release 7." /etc/redhat-release; then
+            echo "Current Version: RHEL Ver 7"
+            RHEL_Ver='7'
+        fi
+    fi
+}
+
+Get_CentOS_Version()
+{
+    Get_Dist_Name
+    if [ "${DISTRO}" = "CentOS" ]; then
+        if grep -Eqi "release 5." /etc/redhat-release; then
+            echo "Current Version: CentOS Ver 5"
+            CentOS_Ver='5'
+        elif grep -Eqi "release 6." /etc/redhat-release; then
+            echo "Current Version: CentOS Ver 6"
+            CentOS_Ver='6'
+        elif grep -Eqi "release 7." /etc/redhat-release; then
+            echo "Current Version: CentOS Ver 7"
+            CentOS_Ver='7'
+        fi
+    fi
+}
+
 Get_OS_Bit()
 {
     if [[ `getconf WORD_BIT` = '32' && `getconf LONG_BIT` = '64' ]] ; then
@@ -264,7 +298,9 @@ Log_Install_Software()
     if [[ ! -z "${Software_Name}" && -s /usr/lops.install.log ]] && grep -Eqi "^${Software_Name}=" /usr/lops.install.log; then
        sed -i "s/^${Software_Name}=.*/${Software_Name}=yes/g" /usr/lops.install.log
     else
-        echo "${Software_Name}=yes" >> /usr/lops.install.log
+        cat >>/usr/lops.install.log<<eof
+${Software_Name}=yes
+eof
     fi
 }
 
@@ -281,6 +317,34 @@ Dele_Install_Software()
    if [[ ! -z "${Software_Name}" && -s /usr/lops.install.log ]]; then
 	  sed -i "s/^${Software_Name}=.*/${Software_Name}=no/g" /usr/lops.install.log
    fi
+}
+
+Log_Install_Lib()
+{
+    if [[ ! -z "${Lib_Name}" && -s /usr/lops.install.log ]] && grep -Eqi "^${Lib_Name}=" /usr/lops.install.log; then
+       sed -i "s/^${Lib_Name}=.*/${Lib_Name}=yes/g" /usr/lops.install.log
+    else
+        cat >>/usr/lops.install.log<<eof
+${Lib_Name}=yes
+eof
+    fi
+    Lib_Name=""
+}
+
+Check_Install_Lib()
+{
+    Lib_Installed='0'
+    if  [[ ! -z "${Lib_Name}" &&  -s /usr/lops.install.log ]] && grep -Eqi "^${Lib_Name}=yes" /usr/lops.install.log; then
+        Lib_Installed='1'
+    fi
+}
+
+Dele_Install_Lib()
+{
+   if [[ ! -z "${Lib_Name}" && -s /usr/lops.install.log ]]; then
+      sed -i "s/^${Lib_Name}=.*/${Lib_Name}=no/g" /usr/lops.install.log
+   fi
+   Lib_Name=""
 }
 
 Color_Text()

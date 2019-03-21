@@ -100,6 +100,8 @@ RHEL_Modify_Source()
     sed -i "s/RPM-GPG-KEY-CentOS-6/RPM-GPG-KEY-CentOS-${RHEL_Ver}/g" /etc/yum.repos.d/CentOS-Base-163.repo
     yum clean all
     yum makecache
+    yum provides '*/applydeltarpm'
+    yum install deltarpm
 }
 
 CentOS_Modify_Source()
@@ -114,6 +116,8 @@ CentOS_Modify_Source()
 	    fi
 	    yum clean all
 	    yum makecache
+        yum provides '*/applydeltarpm'
+        yum install deltarpm
 	fi
 }
 
@@ -175,6 +179,43 @@ EOF
     fi
 }
 
+Check_Old_Releases_URL()
+{
+    OR_Status=`wget --spider --server-response ${OldReleasesURL}/dists/$1/Release 2>&1 | awk '/^  HTTP/{print $2}'`
+    if [ ${OR_Status} != "404" ]; then
+        echo "Ubuntu old-releases status: ${OR_Status}";
+        CodeName=$1
+    fi
+}
+
+Ubuntu_Deadline()
+{
+    trusty_deadline=`date -d "2019-7-22 00:00:00" +%s`
+    artful_deadline=`date -d "2018-7-31 00:00:00" +%s`
+    xenial_deadline=`date -d "2021-4-30 00:00:00" +%s`
+    cur_time=`date  +%s`
+    case "$1" in
+        trusty)
+            if [ ${cur_time} -gt ${trusty_deadline} ]; then
+                echo "${cur_time} > ${trusty_deadline}"
+                Check_Old_Releases_URL trusty
+            fi
+            ;;
+        artful)
+            if [ ${cur_time} -gt ${artful_deadline} ]; then
+                echo "${cur_time} > ${artful_deadline}"
+                Check_Old_Releases_URL artful
+            fi
+            ;;
+        xenial)
+            if [ ${cur_time} -gt ${xenial_deadline} ]; then
+                echo "${cur_time} > ${xenial_deadline}"
+                Check_Old_Releases_URL xenial
+            fi
+            ;;
+    esac
+}
+
 CentOS_Dependent()
 {
     if [ -s /etc/yum.conf ]; then
@@ -214,7 +255,6 @@ Install_Curl()
         Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Curl_Ver}
-        Log_Install_Software 'Curl'
     fi
     Remove_Error_Libcurl
 }
@@ -230,14 +270,16 @@ Install_Pcre()
         Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Pcre_Ver}
-        Log_Install_Software 'Pcre'
     fi
 }
 
 Install_Jemalloc()
 {
-    Check_Install_Software 'Jemalloc'
-    if [ "${Software_Installed}" = "0" ]; then
+    Lib_Name='Jemalloc'
+    Check_Install_Lib
+    if [ "${Lib_Installed}" = "1" ]; then
+        Echo_Green 'Jemalloc installed!'
+    else
         Echo_Blue "[+] Installing ${Jemalloc_Ver}"
         cd ${cur_dir}/src
         Tarj_Cd ${Jemalloc_Ver}.tar.bz2 ${Jemalloc_Ver}
@@ -247,16 +289,17 @@ Install_Jemalloc()
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Jemalloc_Ver}
         ln -sf /usr/local/lib/libjemalloc* /usr/lib/
-        Log_Install_Software 'Jemalloc'
-    else
-        Echo_Green 'Jemalloc installed!'
+        Log_Install_Lib
     fi
 }
 
 Install_TCMalloc()
 {
-    Check_Install_Software "TCMalloc"
-    if [ "${Software_Installed}" = '0' ]; then
+    Lib_Name='TCMalloc'
+    Check_Install_Lib
+    if [ "${Lib_Installed}" = "1" ]; then
+        Echo_Green 'TCMalloc installed!'
+    else
         Echo_Blue "[+] Installing ${TCMalloc_Ver}"
         if [ "${Is_64bit}" = "y" ]; then
             Tar_Cd ${Libunwind_Ver}.tar.gz ${Libunwind_Ver}
@@ -276,9 +319,7 @@ Install_TCMalloc()
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${TCMalloc_Ver}
         ln -sf /usr/local/lib/libtcmalloc* /usr/lib/
-        Log_Install_Software 'TCMalloc'
-    else
-        Echo_Green 'TCMalloc installed!'
+        Log_Install_Lib
     fi
 }
 
@@ -293,7 +334,6 @@ Install_Icu4c()
         Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/icu
-        Log_Install_Software 'Icu4c'
     fi
 }
 
@@ -330,7 +370,6 @@ Install_Openssl()
         Make_Install
         cd ${cur_dir}/src/
         rm -rf ${cur_dir}/src/${Openssl_Ver}
-        Log_Install_Software 'Openssl'
     fi
 }
 

@@ -1,6 +1,19 @@
 #!/bin/bash
 
+# 可以使用mongo命令行的里面的命令 来创建用户
+# mongo -uroot -p123456 <<EOF
+# use test;
+# select * from testaa while a=10000; ###1000 not usr single quote mark,because a is int 
+#                                                   # type,only char type need single quote mark.
+# exit
+# EOF
+
 Mongodb_Info=('Mongo 4.0.x' 'Mongo 3.6.x' 'Mongo 2.x')
+
+Init_Mongodb()
+{
+    Software_Name='Mongodb'
+}
 
 Mongodb_Selection()
 {
@@ -35,12 +48,7 @@ Mongodb_Selection()
 
 Mongodb_Stack()
 {
-    Software_Name='Mongodb'
-	Check_Install_Software
-	if [ "${Software_Installed}" = "1" ]; then
-		Echo_Red "Error: Mongodb installed."
-		exit 1
-	fi
+    Init_Mongodb
 	Init_Install
     cd ${cur_dir}/src
     Install_Mongodb
@@ -52,7 +60,6 @@ Mongodb_Stack()
     # systemctl enable mongod
     systemctl start mongod
     Add_Mongodb_Iptables_Rules
-    Log_Install_Software
     Check_Mongodb_Files
     if [ "${isMongodb}" = "ok" ]; then
     	Print_Sucess_Info
@@ -61,20 +68,23 @@ Mongodb_Stack()
 
 Install_Mongodb()
 {
-	cd ${cur_dir}/yum.repos.d
+	cd ${cur_dir}
+    yum clean all
+    yum makecache
 	if [ "${Mongodb_ver}" = '4.0' ]; then
-		\cp mongodb-org-4.0.repo /etc/yum.repos.d/
+		\cp yum.repos.d/mongodb-org-4.0.repo /etc/yum.repos.d/
+        yum install -y mongodb-org-4.0
 	elif [ "${Mongodb_ver}" = '3.6' ]; then
-		\cp mongodb-org-3.6.repo /etc/yum.repos.d/
+		\cp yum.repos.d/mongodb-org-3.6.repo /etc/yum.repos.d/
+        yum install -y mongodb-org-3.6
 	elif [ "${Mongodb_ver}" = '2' ]; then
 		if [ "${Is_64bit}" = 'y' ]; then
-			\cp mongodb-x86_64.repo /etc/yum.repos.d/mongodb.repo
+			\cp yum.repos.d/mongodb-x86_64.repo /etc/yum.repos.d/mongodb.repo
 		else
-			\cp mongodb-i686.repo /etc/yum.repos.d/mongodb.repo
+			\cp yum.repos.d/mongodb-i686.repo /etc/yum.repos.d/mongodb.repo
 		fi
+        yum install -y mongodb
 	fi
-	cd ${cur_dir}
-	yum install -y mongodb-org
 
 	\cp conf/mongod.conf /etc/mongod.conf
     \cp conf/mongos.conf /etc/mongos.conf
@@ -138,7 +148,7 @@ Check_Mongodb_Files()
 
 Uninstall_Mongodb()
 {
-    Software_Name='Mongodb'
+    Init_Mongodb
 	echo "Stoping Mongod..."
 	# systemctl disable mongod
     systemctl stop mongod
@@ -154,6 +164,7 @@ Uninstall_Mongodb()
     for ItFile in ${Mongodb_Dele_Files} ; do 
         rm -rf ${ItFile}
     done
+    # 标识未安装
     Dele_Install_Software
 }
 

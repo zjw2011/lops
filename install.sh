@@ -19,6 +19,8 @@ Stack=$1
 . include/jdk.sh
 . include/nginx.sh
 . include/mongodb.sh
+. include/redis.sh
+. include/python3.sh
 . include/end.sh
 
 Get_Dist_Name
@@ -42,6 +44,11 @@ echo "+------------------------------------------------------------------------+
 
 Init_Install()
 {
+    Check_Install_Software
+    if [ "${Software_Installed}" = "1" ]; then
+        Echo_Red "Error: ${Software_Name} installed." 
+        exit 1
+    fi
 	Press_Install
     Get_Dist_Version
     Print_Sys_Info
@@ -79,6 +86,9 @@ Init_Install()
         Deb_Lib_Opt
     fi
     Install_Python_Pip
+
+    echo "====== Installing ${Software_Name} ======"
+    echo "Install ${Software_Version} Version..."
 }
 
 case "${Stack}" in
@@ -98,10 +108,21 @@ case "${Stack}" in
 		JDK_Stack 2>&1 | tee /root/jdk-install.log
         ;;
     openresty)
-		Openresty_Stack
+		Openresty_Stack 2>&1 | tee /root/openresty-install.log
+        ;;
+    redis)
+        Redis_Selection
+        Redis_Stack 2>&1 | tee /root/redis-install.log
+        ;;
+    python3)
+        Python3_Stack 2>&1 | tee /root/python3-install.log
+        ;;
+    elasticsearch)
+        ElasticSearch_Selection
+        ElasticSearch_Stack 2>&1 | tee /root/elasticsearch-install.log
         ;;
     *)
-        Echo_Red "Usage: $0 {nginx|db|jdk|openresty|mongodb}"
+        Echo_Red "Usage: $0 {nginx|db|jdk|openresty|mongodb|redis|python3|elasticsearch}"
         ;;
 esac
 

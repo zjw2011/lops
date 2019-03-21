@@ -11,7 +11,7 @@ fi
 Def_User_Add()
 {
 	Def_Create_User_Group
-	useradd ${User_Shell_Home_Option} ${User_Home_Option} ${User_Main_Group_Option} ${User_Second_Group_Option} ${User_Name}
+	useradd ${User_Shell_Home_Option} ${User_ID_Option} ${User_Home_Option} ${User_Main_Group_Option} ${User_Second_Group_Option} ${User_Name}
 	Def_Create_User_Password
 }
 
@@ -119,11 +119,33 @@ Def_Input_Del_User_Info()
 	read -p "Input User Group(,): " User_Groups
 }
 
+Def_Add_Sudoers()
+{
+	chmod 640 /etc/sudoers
+	if grep -Eqi "^${User_Name} " /etc/sudoers; then
+       echo "${User_Name} is suders!!";
+    else
+        echo "${User_Name}    ALL=(ALL)       ALL" >> /etc/sudoers
+    fi
+    chmod 440 /etc/sudoers
+}
+
+Def_Dele_Sudoers()
+{
+	chmod 640 /etc/sudoers
+	if grep -Eqi "^${User_Name} " /etc/sudoers; then
+       sed -i "s/^${User_Name} .*//g" /etc/sudoers
+    fi
+    chmod 440 /etc/sudoers
+}
+
 action=""
 echo "Enter 1 to add user"
 echo "Enter 2 to delete user"
 echo "Enter 3 to test add user"
-read -p "(Please input 1, 2, 3): " action
+echo "Enter 4 to add root user"
+echo "Enter 5 to delete root user"
+read -p "(Please input 1, 2, 3, 4, 5): " action
 
 case "$action" in
 1|add)
@@ -142,5 +164,19 @@ case "$action" in
     Def_Input_Add_User_Info
 	echo "useradd ${User_Shell_Home_Option} ${User_Home_Option} ${User_Main_Group_Option} ${User_Second_Group_Option} ${User_Name}"
 	echo "echo ${User_Name}:${User_Password} | chpasswd"
+	;;
+4|addroot)
+    echo "You will add root User"
+    Def_Input_Add_User_Info
+    Def_Check_User
+    Def_User_Add
+    Def_Add_Sudoers
+    ;;
+5|delroot)
+    echo "You will delete User"
+    Def_Input_Del_User_Info
+    Def_User_Dele
+    Def_Dele_Sudoers
+    ;;
 esac
 

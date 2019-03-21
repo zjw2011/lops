@@ -1,5 +1,10 @@
 #!/bin/bash
 
+Init_JDK()
+{
+    Software_Name='JDK'
+}
+
 JDK_Selection()
 {
     if [ -z ${SelectJDK} ]; then
@@ -42,7 +47,7 @@ Install_JDK_Policy() {
 
 JDK_Stack()
 {
-	Software_Name='JDK'
+	Init_JDK
 	Check_JDK
 	if [ "${JDK_Installed}" = "0" ]; then
 		Press_Install
@@ -52,9 +57,10 @@ JDK_Stack()
 		cd ${cur_dir}/src
 		Get_TarName
 		Install_JDK
-		Log_Install_Software
 		Check_JDK_Files
-		cd ${cur_dir}
+		if [ "${isJDK}" = "ok" ]; then
+            Print_Sucess_Info
+        fi
 	fi
 }
 
@@ -147,7 +153,7 @@ Dele_JDK_Files()
 
 Uninstall_JDK()
 {
-	Software_Name='JDK'
+	Init_JDK
 	Check_JDK
 	if [ "${JDK_Installed}" = "1" ]; then
         Dele_JDK_Files

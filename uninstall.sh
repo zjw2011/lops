@@ -11,12 +11,15 @@ fi
 cur_dir=$(pwd)
 Stack=$1
 
-. lnmj.conf
+. lops.conf
 . include/version.sh
 . include/safe.sh
 . include/main.sh
 . include/nginx.sh
 . include/mongodb.sh
+. include/redis.sh
+. include/jdk.sh
+. include/python3.sh
 
 shopt -s extglob
 
@@ -48,7 +51,9 @@ action=""
 echo "Enter 1 to uninstall nginx"
 echo "Enter 2 to uninstall mongodb"
 echo "Enter 3 to uninstall jdk"
-read -p "(Please input 1, 2, 3): " action
+echo "Enter 4 to uninstall redis"
+echo "Enter 5 to uninstall python3"
+read -p "(Please input 1, 2, 3, 4, 5): " action
 
 case "$action" in
 1|nginx)
@@ -83,5 +88,27 @@ case "$action" in
     Sleep_Sec 3
     Press_Start
     Uninstall_JDK
+    ;;
+4|redis)
+    echo "You will uninstall Redis"
+    Get_Redis_Dele_Files
+    Echo_Red "The following directory or files will be remove!"
+    for ItFile in ${Redis_Dele_Files} ; do 
+        Echo_Yellow "${ItFile}"
+    done
+    Sleep_Sec 3
+    Press_Start
+    Uninstall_Redis
+    ;;
+5|python3)
+    echo "You will uninstall Python3"
+    Get_Python3_Dele_Files
+    Echo_Red "The following directory or files will be remove!"
+    for ItFile in ${Python3_Dele_Files} ; do 
+        Echo_Yellow "${ItFile}"
+    done
+    Sleep_Sec 3
+    Press_Start
+    Uninstall_Python3
     ;;
 esac
